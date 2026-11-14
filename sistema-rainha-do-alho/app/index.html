@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rainha do Alho · Sistema</title>
+<meta name="theme-color" content="#0c0a08">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-64.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="telaLogin" class="login" hidden>
+    <div class="login-box">
+      <img src="icons/logo.png" alt="Rainha do Alho" class="login-logo">
+      <h1>Sistema interno</h1>
+      <div class="seg" role="tablist">
+        <button data-modo="entrar" class="on">Entrar</button>
+        <button data-modo="cadastrar">Criar conta</button>
+      </div>
+      <form id="formLogin" novalidate>
+        <div class="campo" id="campoNome" hidden><label for="lgNome">Seu nome</label><input id="lgNome" autocomplete="name"></div>
+        <div class="campo"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="email" required></div>
+        <div class="campo" id="campoSenha"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password" minlength="6" required></div>
+        <button class="btn full" id="lgBtn" type="submit">Entrar</button>
+        <button class="link" type="button" id="lgEsqueci">Esqueci minha senha</button>
+        <p class="msg" id="lgMsg"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOVA SENHA (link do e-mail) -->
+  <div id="telaNovaSenha" class="login" hidden>
+    <div class="login-box">
+      <img src="icons/logo.png" alt="" class="login-logo">
+      <h1>Nova senha</h1>
+      <form id="formNovaSenha">
+        <div class="campo"><label for="nsSenha">Nova senha (mín. 6 caracteres)</label><input id="nsSenha" type="password" minlength="6" autocomplete="new-password" required></div>
+        <button class="btn full" type="submit">Salvar nova senha</button>
+        <p class="msg" id="nsMsg"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- PENDENTE -->
+  <div id="telaPendente" class="login" hidden>
+    <div class="login-box">
+      <img src="icons/logo.png" alt="" class="login-logo">
+      <h1>Conta criada 👑</h1>
+      <p class="hint center">Sua conta (<b id="pendEmail"></b>) está aguardando liberação. Peça para o administrador liberar seu acesso em <b>Usuários</b>.</p>
+      <button class="btn full" id="pendRecarregar">Já fui liberado</button>
+      <button class="link" id="pendSair">Sair</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="telaApp" hidden>
+    <header class="topo">
+      <div class="topo-in">
+        <div class="marca"><img src="icons/icon-64.png" alt=""><div><b>Rainha do Alho</b><small id="quem"></small></div></div>
+        <div class="row">
+          <button class="icon-btn" id="btnAtualizar" title="Atualizar dados">⟳</button>
+          <button class="icon-btn" id="btnSair" title="Sair">Sair</button>
+        </div>
+      </div>
+      <nav id="menu" class="menu"></nav>
+    </header>
+    <main id="view" class="view"></main>
+  </div>
+
+  <div id="carregando" class="carregando"><div class="spin"></div></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <dialog id="modal"><div id="modalConteudo"></div></dialog>
+  <dialog id="confirmar" class="pequeno">
+    <div class="dlg-b"><p id="confTexto" style="white-space:pre-line;margin:0"></p></div>
+    <div class="dlg-f"><button class="btn ghost" id="confNao">Cancelar</button><button class="btn" id="confSim">Confirmar</button></div>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
