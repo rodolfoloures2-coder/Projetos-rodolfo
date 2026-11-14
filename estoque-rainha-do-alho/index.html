@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rainha do Alho · Estoque &amp; Custos (teste)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0a08; --panel:#15120e; --panel2:#1c1813; --line:rgba(232,200,122,.16);
+    --gold:#E8C87A; --gold2:#F7E3AE; --text:#F2EAD8; --muted:#a89f8c;
+    --ok:#7fbf8a; --warn:#e8b04a; --bad:#e2677a; --pink:#d9468f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Jost',system-ui,sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,32px) 60px}
+  header{position:sticky;top:0;z-index:20;background:rgba(12,10,8,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0 10px;flex-wrap:wrap}
+  .brand h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:28px;margin:0;color:var(--gold);letter-spacing:.02em}
+  .brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  .badge-test{font-size:12px;color:var(--warn);border:1px solid rgba(232,176,74,.4);padding:4px 10px;border-radius:999px}
+  nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:10px}
+  nav button{background:none;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;font-size:14px;letter-spacing:.04em}
+  nav button:hover{color:var(--text)}
+  nav button.active{color:var(--gold);border-color:var(--line);background:var(--panel)}
+  section{display:none;padding-top:22px}
+  section.active{display:block}
+  h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;margin:0 0 4px;color:var(--gold2)}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .kpi .lbl{color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .kpi .val{font-size:26px;font-weight:500;margin-top:6px;font-variant-numeric:tabular-nums}
+  .kpi .val.bad{color:var(--bad)} .kpi .val.ok{color:var(--ok)}
+  .two{grid-template-columns:1fr 1fr} @media(max-width:820px){.two{grid-template-columns:1fr}}
+  .card h3{margin:0 0 12px;font-size:15px;font-weight:500;color:var(--gold);letter-spacing:.04em}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:400;font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--panel2);position:sticky;top:0}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:rgba(232,200,122,.04)}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;border:1px solid}
+  .pill.ok{color:var(--ok);border-color:rgba(127,191,138,.4)}
+  .pill.warn{color:var(--warn);border-color:rgba(232,176,74,.4)}
+  .pill.bad{color:var(--bad);border-color:rgba(226,103,122,.45)}
+  .neg{color:var(--bad)} .pos{color:var(--ok)}
+  .btn{background:var(--gold);color:#1a140a;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:500}
+  .btn:hover{background:var(--gold2)}
+  .btn.ghost{background:none;color:var(--gold);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--gold)}
+  .btn.danger{background:none;color:var(--bad);border:1px solid rgba(226,103,122,.4)}
+  .btn.sm{padding:5px 10px;font-size:13px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .between{justify-content:space-between}
+  label{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:5px;text-transform:uppercase}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  .form{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .full{grid-column:1/-1}
+  .hint{font-size:13px;color:var(--muted)}
+  .msg{padding:10px 12px;border-radius:8px;font-size:14px;margin-top:12px;display:none}
+  .msg.show{display:block}
+  .msg.ok{background:rgba(127,191,138,.1);color:var(--ok);border:1px solid rgba(127,191,138,.3)}
+  .msg.bad{background:rgba(226,103,122,.1);color:var(--bad);border:1px solid rgba(226,103,122,.3)}
+  .list{list-style:none;margin:0;padding:0}
+  .list li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .list li:last-child{border-bottom:none}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0}
+  dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:0;width:min(720px,94vw);max-height:90vh}
+  dialog::backdrop{background:rgba(0,0,0,.65)}
+  .dlg-h{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .dlg-h h3{margin:0;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold2)}
+  .dlg-b{padding:18px;overflow:auto;max-height:calc(90vh - 130px)}
+  .dlg-f{display:flex;justify-content:space-between;gap:10px;padding:14px 18px;border-top:1px solid var(--line)}
+  .rec-row{display:grid;grid-template-columns:1fr 120px 90px 36px;gap:8px;align-items:center;margin-bottom:8px}
+  .x{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;height:36px;cursor:pointer}
+  .x:hover{color:var(--bad);border-color:var(--bad)}
+  .calc-res{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:4px}
+  .calc-res .card{padding:12px}
+  .big{font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+  .bar{height:12px;border-radius:6px;overflow:hidden;display:flex;background:var(--panel2);margin:10px 0 6px}
+  .bar span{display:block;height:100%}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .breakdown td{padding:7px 10px}
+  .search{max-width:260px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-bottom:0">
+    <div class="top">
+      <div class="brand">
+        <h1>Rainha do Alho</h1>
+        <small>Estoque · Produção · Custos e Preços</small>
+      </div>
+      <span class="badge-test" title="Os dados ficam salvos só neste navegador">Versão de teste · dados salvos neste navegador</span>
+    </div>
+    <nav id="nav">
+      <button data-tab="painel" class="active">Painel</button>
+      <button data-tab="produtos">Produtos</button>
+      <button data-tab="insumos">Insumos</button>
+      <button data-tab="movimentar">Movimentar</button>
+      <button data-tab="historico">Histórico</button>
+      <button data-tab="calculadora">Calculadora de preço</button>
+      <button data-tab="config">Configurações</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- PAINEL -->
+  <section id="painel" class="active">
+    <h2>Painel</h2>
+    <p class="sub">Visão geral do estoque e das margens.</p>
+    <div class="grid kpis" id="kpis"></div>
+    <div class="grid two" style="margin-top:14px">
+      <div class="card"><h3>Abaixo do estoque mínimo</h3><ul class="list" id="alertas"></ul></div>
+      <div class="card"><h3>Últimas movimentações</h3><ul class="list" id="ultimas"></ul></div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>Margem por produto (preço atual)</h3><ul class="list" id="margens"></ul></div>
+  </section>
+
+  <!-- PRODUTOS -->
+  <section id="produtos">
+    <div class="row between">
+      <div><h2>Produtos</h2><p class="sub">Produto acabado. O custo vem da receita (insumos por unidade) + mão de obra.</p></div>
+      <div class="row"><input class="search" id="buscaProd" placeholder="Buscar produto…"><button class="btn" id="novoProd">+ Novo produto</button></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Produto</th><th class="num">Estoque</th><th class="num">Mínimo</th><th class="num">Custo un.</th><th class="num">Preço</th><th class="num">Margem líq.</th><th>Status</th><th></th></tr></thead>
+      <tbody id="tbProd"></tbody>
+    </table></div>
+  </section>
+
+  <!-- INSUMOS -->
+  <section id="insumos">
+    <div class="row between">
+      <div><h2>Insumos</h2><p class="sub">Matéria-prima e embalagens. O custo é atualizado pelo custo médio a cada compra.</p></div>
+      <div class="row"><input class="search" id="buscaIns" placeholder="Buscar insumo…"><button class="btn" id="novoIns">+ Novo insumo</button></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Insumo</th><th>Unid.</th><th class="num">Estoque</th><th class="num">Mínimo</th><th class="num">Custo / unid.</th><th class="num">Valor em estoque</th><th>Status</th><th></th></tr></thead>
+      <tbody id="tbIns"></tbody>
+    </table></div>
+  </section>
+
+  <!-- MOVIMENTAR -->
+  <section id="movimentar">
+    <h2>Movimentar estoque</h2>
+    <p class="sub">Registre produção, vendas, compras de insumo e ajustes.</p>
+    <div class="card">
+      <div class="form">
+        <div>
+          <label for="mvTipo">Tipo</label>
+          <select id="mvTipo">
+            <option value="producao">Produção (consome insumos → gera produto)</option>
+            <option value="venda">Venda / saída de produto</option>
+            <option value="compra">Compra de insumo (entrada)</option>
+            <option value="ajuste_prod">Ajuste / perda de produto</option>
+            <option value="ajuste_ins">Ajuste / perda de insumo</option>
+          </select>
+        </div>
+        <div><label for="mvItem">Item</label><select id="mvItem"></select></div>
+        <div><label for="mvQtd" id="mvQtdLbl">Quantidade</label><input id="mvQtd" type="number" step="any" min="0" placeholder="0"></div>
+        <div id="mvValorBox"><label for="mvValor" id="mvValorLbl">Valor total (R$)</label><input id="mvValor" type="number" step="0.01" min="0" placeholder="0,00"></div>
+        <div class="full"><label for="mvObs">Observação</label><input id="mvObs" placeholder="Ex.: pedido Restaurante X, NF 123, lote 45…"></div>
+      </div>
+      <div id="mvPreview" style="margin-top:14px"></div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="mvSalvar">Registrar</button></div>
+      <div class="msg" id="mvMsg"></div>
+    </div>
+  </section>
+
+  <!-- HISTORICO -->
+  <section id="historico">
+    <div class="row between">
+      <div><h2>Histórico</h2><p class="sub">Todas as movimentações registradas.</p></div>
+      <div class="row">
+        <select id="hFiltro" style="width:auto">
+          <option value="">Todos os tipos</option>
+          <option value="producao">Produção</option>
+          <option value="venda">Venda</option>
+          <option value="compra">Compra de insumo</option>
+          <option value="ajuste_prod">Ajuste de produto</option>
+          <option value="ajuste_ins">Ajuste de insumo</option>
+        </select>
+        <button class="btn ghost" id="hCsv">Exportar CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Data</th><th>Tipo</th><th>Item</th><th class="num">Qtd</th><th class="num">Valor</th><th>Obs.</th></tr></thead>
+      <tbody id="tbHist"></tbody>
+    </table></div>
+  </section>
+
+  <!-- CALCULADORA -->
+  <section id="calculadora">
+    <h2>Calculadora de custo e preço</h2>
+    <p class="sub">Escolha um produto: o custo vem da receita e dos custos atuais dos insumos. Ajuste os percentuais e veja o preço sugerido.</p>
+    <div class="grid two">
+      <div class="card">
+        <div class="form">
+          <div class="full"><label for="cProd">Produto</label><select id="cProd"></select></div>
+          <div><label for="cImp">Impostos (%)</label><input id="cImp" type="number" step="0.1" min="0"></div>
+          <div><label for="cCom">Comissão / taxas (%)</label><input id="cCom" type="number" step="0.1" min="0"></div>
+          <div><label for="cDesp">Despesas fixas (%)</label><input id="cDesp" type="number" step="0.1" min="0"></div>
+          <div><label for="cMarg">Margem desejada (%)</label><input id="cMarg" type="number" step="0.1" min="0"></div>
+          <div><label for="cFrete">Frete / extra por un. (R$)</label><input id="cFrete" type="number" step="0.01" min="0" value="0"></div>
+          <div><label for="cPrecoAtual">Preço atual (R$)</label><input id="cPrecoAtual" type="number" step="0.01" min="0"></div>
+        </div>
+        <p class="hint" style="margin-top:12px">Preço sugerido = custo ÷ (1 − (impostos + comissão + despesas + margem) ÷ 100). Assim a margem é sobre o preço de venda, já descontados os percentuais.</p>
+      </div>
+      <div class="card">
+        <h3>Composição do custo (por unidade)</h3>
+        <table class="breakdown"><tbody id="cBreak"></tbody></table>
+      </div>
+    </div>
+    <div class="calc-res" id="cRes" style="margin-top:14px"></div>
+    <div class="card" style="margin-top:14px">
+      <h3>Para onde vai o preço sugerido</h3>
+      <div class="bar" id="cBar"></div>
+      <div class="legend" id="cLegend"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="cAplicar">Aplicar preço sugerido ao produto</button>
+        <span class="hint" id="cAplicarMsg"></span>
+      </div>
+    </div>
+    <h3 style="margin:26px 0 10px;color:var(--gold);font-weight:500">Simulação para todos os produtos</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Produto</th><th class="num">Custo un.</th><th class="num">Preço atual</th><th class="num">Margem atual</th><th class="num">Preço sugerido</th><th class="num">Diferença</th></tr></thead>
+      <tbody id="tbSim"></tbody>
+    </table></div>
+  </section>
+
+  <!-- CONFIG -->
+  <section id="config">
+    <h2>Configurações</h2>
+    <p class="sub">Percentuais padrão da calculadora e backup dos dados.</p>
+    <div class="grid two">
+      <div class="card">
+        <h3>Percentuais padrão</h3>
+        <div class="form">
+          <div><label for="pImp">Impostos (%)</label><input id="pImp" type="number" step="0.1" min="0"></div>
+          <div><label for="pCom">Comissão / taxas (%)</label><input id="pCom" type="number" step="0.1" min="0"></div>
+          <div><label for="pDesp">Despesas fixas (%)</label><input id="pDesp" type="number" step="0.1" min="0"></div>
+          <div><label for="pMarg">Margem desejada (%)</label><input id="pMarg" type="number" step="0.1" min="0"></div>
+        </div>
+        <div class="row" style="margin-top:14px"><button class="btn" id="pSalvar">Salvar</button><span class="hint" id="pMsg"></span></div>
+      </div>
+      <div class="card">
+        <h3>Backup</h3>
+        <p class="hint">Os dados ficam salvos neste navegador. Exporte um arquivo para guardar ou levar para outro computador.</p>
+        <div class="row">
+          <button class="btn ghost" id="bExport">Exportar backup (.json)</button>
+          <label class="btn ghost" style="margin:0;text-transform:none;letter-spacing:0;font-size:15px;color:var(--gold)">Importar backup<input type="file" id="bImport" accept="application/json" hidden></label>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--line);margin:16px 0">
+        <p class="hint">Os valores iniciais são <b>exemplos fictícios</b> para teste. Troque pelos custos reais da empresa.</p>
+        <button class="btn danger" id="bReset">Restaurar dados de exemplo</button>
+        <div class="msg" id="bMsg"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL PRODUTO -->
+<dialog id="dlgProd">
+  <div class="dlg-h"><h3 id="dlgProdTit">Produto</h3><button class="x" data-close style="width:36px">✕</button></div>
+  <div class="dlg-b">
+    <div class="form">
+      <div class="full"><label for="fpNome">Nome</label><input id="fpNome" placeholder="Ex.: Alho Picado 1 kg"></div>
+      <div><label for="fpEst">Estoque (un.)</label><input id="fpEst" type="number" step="any" min="0"></div>
+      <div><label for="fpMin">Estoque mínimo (un.)</label><input id="fpMin" type="number" step="any" min="0"></div>
+      <div><label for="fpPreco">Preço de venda (R$)</label><input id="fpPreco" type="number" step="0.01" min="0"></div>
+      <div><label for="fpMO">Mão de obra / un. (R$)</label><input id="fpMO" type="number" step="0.01" min="0"></div>
+    </div>
+    <h3 style="margin:20px 0 6px;color:var(--gold);font-weight:500;font-size:15px">Receita: insumos usados por unidade</h3>
+    <p class="hint" style="margin-top:0">Inclua o rendimento: se 1 kg de alho picado precisa de 1,3 kg de alho in natura, coloque 1,3.</p>
+    <div id="fpRec"></div>
+    <button class="btn ghost sm" id="fpAddRec">+ Adicionar insumo</button>
+    <div class="card" style="margin-top:14px;padding:12px" id="fpResumo"></div>
+  </div>
+  <div class="dlg-f"><button class="btn danger" id="fpDel">Excluir</button><div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="fpSalvar">Salvar</button></div></div>
+</dialog>
+
+<!-- MODAL INSUMO -->
+<dialog id="dlgIns">
+  <div class="dlg-h"><h3 id="dlgInsTit">Insumo</h3><button class="x" data-close style="width:36px">✕</button></div>
+  <div class="dlg-b">
+    <div class="form">
+      <div class="full"><label for="fiNome">Nome</label><input id="fiNome" placeholder="Ex.: Alho in natura"></div>
+      <div><label for="fiUn">Unidade</label><select id="fiUn"><option>kg</option><option>un</option><option>L</option><option>g</option><option>m</option></select></div>
+      <div><label for="fiCusto">Custo por unidade (R$)</label><input id="fiCusto" type="number" step="0.0001" min="0"></div>
+      <div><label for="fiEst">Estoque</label><input id="fiEst" type="number" step="any" min="0"></div>
+      <div><label for="fiMin">Estoque mínimo</label><input id="fiMin" type="number" step="any" min="0"></div>
+    </div>
+    <p class="hint" id="fiUso" style="margin-top:14px"></p>
+  </div>
+  <div class="dlg-f"><button class="btn danger" id="fiDel">Excluir</button><div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="fiSalvar">Salvar</button></div></div>
+</dialog>
+
+<script>
+/* ============ DADOS ============ */
+const KEY = 'rainha-estoque-v1';
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+function dadosExemplo(){
+  const I = (id,nome,un,custo,est,min)=>({id,nome,un,custo,est,min});
+  const insumos = [
+    I('alho','Alho in natura','kg',18.00,300,100),
+    I('alhoroxo','Alho roxo nacional (cabeça)','kg',22.00,120,40),
+    I('cebola','Cebola','kg',4.50,80,30),
+    I('salsa','Salsa','kg',12.00,10,3),
+    I('sal','Sal','kg',2.50,25,5),
+    I('oleo','Óleo de soja','L',9.00,40,10),
+    I('acido','Acidulante (ác. cítrico)','kg',28.00,8,2),
+    I('pote125','Pote 125 g / 90 g','un',0.45,600,200),
+    I('pote200','Pote 200 g','un',0.55,800,300),
+    I('pote400','Pote 400 g','un',0.75,500,200),
+    I('pote500','Pote 500 g','un',0.95,150,50),
+    I('balde1','Balde 1 kg','un',1.40,300,100),
+    I('balde3','Balde 3 kg','un',2.80,120,50),
+    I('vidro','Pote de vidro 140 g c/ tampa dourada','un',3.20,200,80),
+    I('saco1','Saco 1 kg (descascado)','un',0.35,400,150),
+    I('saco25','Saco 25 kg','un',2.20,40,10),
+    I('cartela','Cartela (bandeja + filme)','un',0.60,300,100),
+    I('rede','Redinha','un',0.20,500,200),
+    I('caixa10','Caixa 10 kg (granel)','un',3.50,60,20),
+    I('rotulo','Rótulo','un',0.12,3000,1000),
+  ];
+  const P = (nome,est,min,preco,mo,rec)=>({id:uid(),nome,est,min,preco,mo,rec:rec.map(([ins,q])=>({ins,q}))});
+  const produtos = [
+    P('Alho Picado Gourmet 140 g',60,30,19.90,0.80,[['alho',0.19],['acido',0.001],['vidro',1],['rotulo',1]]),
+    P('Alho Descascado Gourmet 125 g',90,40,6.90,0.35,[['alho',0.16],['pote125',1],['rotulo',1]]),
+    P('Alho Cartela Gourmet 150 g',70,30,9.90,0.30,[['alhoroxo',0.15],['cartela',1],['rotulo',1]]),
+    P('Alho Redinha Gourmet 150 g',110,40,7.90,0.20,[['alhoroxo',0.15],['rede',1],['rotulo',1]]),
+    P('Alho a Granel Gourmet 10 kg',8,4,329.00,2.00,[['alhoroxo',10],['caixa10',1]]),
+    P('Alho Picado 200 g',140,60,9.90,0.40,[['alho',0.27],['acido',0.002],['pote200',1],['rotulo',1]]),
+    P('Alho Picado 400 g',80,40,17.90,0.50,[['alho',0.54],['acido',0.004],['pote400',1],['rotulo',1]]),
+    P('Alho Picado 1 kg',45,30,39.90,0.90,[['alho',1.30],['acido',0.01],['balde1',1],['rotulo',1]]),
+    P('Alho Picado 3 kg',12,15,109.00,1.80,[['alho',3.90],['acido',0.03],['balde3',1],['rotulo',1]]),
+    P('Alho e Cebola 200 g',60,30,8.50,0.40,[['alho',0.14],['cebola',0.12],['sal',0.005],['pote200',1],['rotulo',1]]),
+    P('Alho, Cebola e Salsa 200 g',50,30,8.90,0.45,[['alho',0.13],['cebola',0.11],['salsa',0.02],['pote200',1],['rotulo',1]]),
+    P('Cebola Picada 200 g',70,30,5.90,0.35,[['cebola',0.25],['acido',0.002],['pote200',1],['rotulo',1]]),
+    P('Cebola Picada 400 g',18,25,9.90,0.45,[['cebola',0.50],['acido',0.004],['pote400',1],['rotulo',1]]),
+    P('Alho Frito 90 g',90,40,12.90,0.60,[['alho',0.30],['oleo',0.05],['pote125',1],['rotulo',1]]),
+    P('Alho Frito 500 g',20,15,59.90,1.50,[['alho',1.60],['oleo',0.25],['pote500',1],['rotulo',1]]),
+    P('Alho Descascado 1 kg',55,30,34.90,0.80,[['alho',1.25],['saco1',1],['rotulo',1]]),
+    P('Alho Descascado 25 kg',3,2,799.00,12.00,[['alho',31.0],['saco25',1],['rotulo',1]]),
+  ];
+  return { insumos, produtos, movs: [], cfg: { imp: 6, com: 3, desp: 10, marg: 20 } };
+}
+
+let db;
+function carregar(){
+  try { const raw = localStorage.getItem(KEY); db = raw ? JSON.parse(raw) : dadosExemplo(); }
+  catch(e){ db = dadosExemplo(); }
+  if(!db.cfg) db.cfg = { imp:6, com:3, desp:10, marg:20 };
+  if(!db.movs) db.movs = [];
+}
+function salvar(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){} }
+
+/* ============ UTIL ============ */
+const $ = s => document.querySelector(s);
+const brl = v => (isFinite(v) ? v : 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const num = (v,d=2) => (isFinite(v)?v:0).toLocaleString('pt-BR',{maximumFractionDigits:d});
+const pct = v => isFinite(v) ? (v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%' : '—';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n = v => { const x = parseFloat(String(v).replace(',','.')); return isFinite(x) ? x : 0; };
+const insById = id => db.insumos.find(i => i.id === id);
+const prodById = id => db.produtos.find(p => p.id === id);
+const byName = (a,b) => a.nome.localeCompare(b.nome,'pt-BR');
+
+function custoProduto(p){
+  let mat = 0;
+  for(const r of p.rec){ const i = insById(r.ins); if(i) mat += i.custo * r.q; }
+  return { mat, mo: p.mo||0, total: mat + (p.mo||0) };
+}
+function percentuais(c){ return (c.imp + c.com + c.desp) / 100; }
+function margemLiquida(p, cfg=db.cfg){
+  if(!p.preco) return NaN;
+  const c = custoProduto(p).total;
+  return (p.preco - c - p.preco*percentuais(cfg)) / p.preco;
+}
+function precoSugerido(custo, c){
+  const d = 1 - (c.imp + c.com + c.desp + c.marg)/100;
+  return d > 0 ? custo / d : NaN;
+}
+function status(est, min){
+  if(est <= 0) return '<span class="pill bad">Sem estoque</span>';
+  if(est < min) return '<span class="pill warn">Abaixo do mínimo</span>';
+  return '<span class="pill ok">OK</span>';
+}
+function margemClass(m){ return !isFinite(m) ? '' : m < 0 ? 'neg' : m < 0.08 ? '' : 'pos'; }
+
+/* ============ NAV ============ */
+document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click', () => abrirAba(b.dataset.tab)));
+function abrirAba(t){
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('active', s.id === t));
+  render();
+  window.scrollTo({top:0});
+}
+
+/* ============ RENDER ============ */
+function render(){
+  renderPainel(); renderProdutos(); renderInsumos(); renderMovForm(); renderHist(); renderCalc(); renderCfg();
+}
+
+function renderPainel(){
+  let vCusto = 0, vVenda = 0, vIns = 0;
+  db.produtos.forEach(p => { vCusto += custoProduto(p).total * p.est; vVenda += (p.preco||0) * p.est; });
+  db.insumos.forEach(i => vIns += i.custo * i.est);
+  const baixosP = db.produtos.filter(p => p.est < p.min);
+  const baixosI = db.insumos.filter(i => i.est < i.min);
+  const margs = db.produtos.map(p => margemLiquida(p)).filter(isFinite);
+  const mMedia = margs.length ? margs.reduce((a,b)=>a+b,0)/margs.length : NaN;
+  const vendasMes = db.movs.filter(m => m.tipo==='venda' && new Date(m.data).getMonth()===new Date().getMonth() && new Date(m.data).getFullYear()===new Date().getFullYear()).reduce((a,m)=>a+(m.valor||0),0);
+  $('#kpis').innerHTML = [
+    ['Produto acabado (a custo)', brl(vCusto)],
+    ['Produto acabado (a preço de venda)', brl(vVenda)],
+    ['Insumos em estoque', brl(vIns)],
+    ['Itens abaixo do mínimo', String(baixosP.length + baixosI.length), (baixosP.length+baixosI.length) ? 'bad':'ok'],
+    ['Margem líquida média', pct(mMedia), mMedia < 0 ? 'bad' : ''],
+    ['Vendas registradas no mês', brl(vendasMes)],
+  ].map(([l,v,c]) => `<div class="card kpi"><div class="lbl">${l}</div><div class="val ${c||''}">${v}</div></div>`).join('');
+
+  const al = [
+    ...baixosP.map(p => `<li><span>${esc(p.nome)} <span class="hint">· produto</span></span><span class="${p.est<=0?'neg':''}">${num(p.est)} / mín. ${num(p.min)} un.</span></li>`),
+    ...baixosI.map(i => `<li><span>${esc(i.nome)} <span class="hint">· insumo</span></span><span class="${i.est<=0?'neg':''}">${num(i.est)} / mín. ${num(i.min)} ${esc(i.un)}</span></li>`),
+  ];
+  $('#alertas').innerHTML = al.length ? al.join('') : '<li class="empty">Tudo acima do mínimo. 👑</li>';
+
+  const ult = db.movs.slice(-6).reverse();
+  $('#ultimas').innerHTML = ult.length ? ult.map(m => `<li><span>${tipoNome(m.tipo)} · ${esc(m.itemNome)}</span><span class="hint">${num(m.qtd)} · ${fmtData(m.data)}</span></li>`).join('') : '<li class="empty">Nenhuma movimentação ainda. Use a aba “Movimentar”.</li>';
+
+  const ord = [...db.produtos].sort((a,b) => (margemLiquida(a)||-9) - (margemLiquida(b)||-9));
+  $('#margens').innerHTML = ord.map(p => { const m = margemLiquida(p); return `<li><span>${esc(p.nome)}</span><span class="${margemClass(m)}">${pct(m)} · lucro ${brl(p.preco*(isFinite(m)?m:0))}/un.</span></li>`; }).join('');
+}
+
+function renderProdutos(){
+  const q = ($('#buscaProd').value||'').toLowerCase();
+  const rows = [...db.produtos].sort(byName).filter(p => p.nome.toLowerCase().includes(q)).map(p => {
+    const c = custoProduto(p).total, m = margemLiquida(p);
+    return `<tr><td>${esc(p.nome)}</td><td class="num">${num(p.est)}</td><td class="num">${num(p.min)}</td><td class="num">${brl(c)}</td><td class="num">${brl(p.preco)}</td><td class="num ${margemClass(m)}">${pct(m)}</td><td>${status(p.est,p.min)}</td><td><button class="btn ghost sm" data-editp="${p.id}">Editar</button> <button class="btn ghost sm" data-calcp="${p.id}">Calcular</button></td></tr>`;
+  });
+  $('#tbProd').innerHTML = rows.join('') || '<tr><td colspan="8" class="empty">Nenhum produto.</td></tr>';
+}
+
+function renderInsumos(){
+  const q = ($('#buscaIns').value||'').toLowerCase();
+  const rows = [...db.insumos].sort(byName).filter(i => i.nome.toLowerCase().includes(q)).map(i =>
+    `<tr><td>${esc(i.nome)}</td><td>${esc(i.un)}</td><td class="num">${num(i.est,3)}</td><td class="num">${num(i.min,3)}</td><td class="num">${brl(i.custo)}</td><td class="num">${brl(i.custo*i.est)}</td><td>${status(i.est,i.min)}</td><td><button class="btn ghost sm" data-editi="${i.id}">Editar</button></td></tr>`);
+  $('#tbIns').innerHTML = rows.join('') || '<tr><td colspan="8" class="empty">Nenhum insumo.</td></tr>';
+}
+
+/* ============ MOVIMENTAR ============ */
+const tipoNome = t => ({producao:'Produção',venda:'Venda',compra:'Compra de insumo',ajuste_prod:'Ajuste de produto',ajuste_ins:'Ajuste de insumo'}[t]||t);
+const fmtData = d => new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+function renderMovForm(keepItem){
+  const t = $('#mvTipo').value, sel = $('#mvItem'), prev = sel.value;
+  const usaIns = t === 'compra' || t === 'ajuste_ins';
+  const lista = (usaIns ? [...db.insumos] : [...db.produtos]).sort(byName);
+  sel.innerHTML = lista.map(x => `<option value="${x.id}">${esc(x.nome)}${usaIns ? ' ('+esc(x.un)+')' : ''}</option>`).join('');
+  if(lista.some(x => x.id === prev)) sel.value = prev;
+  $('#mvValorBox').style.display = (t === 'venda' || t === 'compra') ? '' : 'none';
+  $('#mvValorLbl').textContent = t === 'compra' ? 'Valor total pago (R$)' : 'Valor total da venda (R$) — opcional';
+  const it = usaIns ? insById(sel.value) : null;
+  $('#mvQtdLbl').textContent = t.startsWith('ajuste') ? 'Quantidade (+ entra / − sai)' : usaIns ? `Quantidade (${it ? it.un : ''})` : 'Quantidade (un.)';
+  $('#mvQtd').min = t.startsWith('ajuste') ? '' : '0';
+  preview();
+}
+['#mvTipo','#mvItem'].forEach(s => $(s).addEventListener('change', () => { if(s==='#mvTipo'){ $('#mvValor').value=''; } renderMovForm(); }));
+['#mvQtd','#mvValor'].forEach(s => $(s).addEventListener('input', preview));
+
+function preview(){
+  const t = $('#mvTipo').value, id = $('#mvItem').value, q = n($('#mvQtd').value), box = $('#mvPreview');
+  if(t === 'producao'){
+    const p = prodById(id); if(!p || q <= 0){ box.innerHTML = '<p class="hint">Informe a quantidade para ver os insumos que serão consumidos.</p>'; return; }
+    const linhas = p.rec.map(r => { const i = insById(r.ins); if(!i) return ''; const need = r.q*q, falta = need > i.est + 1e-9;
+      return `<tr><td>${esc(i.nome)}</td><td class="num">${num(need,3)} ${esc(i.un)}</td><td class="num">${num(i.est,3)} ${esc(i.un)}</td><td>${falta?'<span class="pill bad">Falta '+num(need-i.est,3)+'</span>':'<span class="pill ok">OK</span>'}</td></tr>`; }).join('');
+    const c = custoProduto(p);
+    box.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Insumo consumido</th><th class="num">Necessário</th><th class="num">Em estoque</th><th></th></tr></thead><tbody>${linhas}</tbody></table></div><p class="hint">Custo desta produção: <b>${brl(c.total*q)}</b> (${brl(c.total)} por unidade).</p>`;
+  } else if(t === 'venda'){
+    const p = prodById(id); const v = n($('#mvValor').value);
+    if(!p){ box.innerHTML=''; return; }
+    let h = `<p class="hint">Em estoque: <b>${num(p.est)}</b> un. · Preço cadastrado: ${brl(p.preco)}`;
+    if(q>0){ const total = v || p.preco*q; const lucro = total - custoProduto(p).total*q - total*percentuais(db.cfg);
+      h += ` · Total: <b>${brl(total)}</b> · Lucro líquido estimado: <b class="${lucro<0?'neg':'pos'}">${brl(lucro)}</b>`; if(q>p.est) h += ` · <span class="neg">quantidade maior que o estoque</span>`; }
+    box.innerHTML = h + '</p>';
+  } else if(t === 'compra'){
+    const i = insById(id); const v = n($('#mvValor').value);
+    if(!i){ box.innerHTML=''; return; }
+    let h = `<p class="hint">Estoque atual: <b>${num(i.est,3)} ${esc(i.un)}</b> a ${brl(i.custo)}/${esc(i.un)}`;
+    if(q>0 && v>0){ const novo = (i.custo*i.est + v)/(i.est+q); h += ` · Preço desta compra: ${brl(v/q)}/${esc(i.un)} · <b>Novo custo médio: ${brl(novo)}</b>`; }
+    box.innerHTML = h + '</p>';
+  } else {
+    box.innerHTML = '<p class="hint">Use número negativo para perda/saída (ex.: −5) e positivo para acerto de entrada.</p>';
+  }
+}
+
+function msg(el, texto, ok){ el.textContent = texto; el.className = 'msg show ' + (ok?'ok':'bad'); clearTimeout(el._t); el._t = setTimeout(()=>el.className='msg', 6000); }
+
+$('#mvSalvar').addEventListener('click', () => {
+  const t = $('#mvTipo').value, id = $('#mvItem').value, q = n($('#mvQtd').value), v = n($('#mvValor').value), obs = $('#mvObs').value.trim(), el = $('#mvMsg');
+  if(!id) return msg(el,'Escolha um item.',false);
+  if(t.startsWith('ajuste') ? q === 0 : q <= 0) return msg(el,'Informe uma quantidade válida.',false);
+  const reg = { id: uid(), data: new Date().toISOString(), tipo: t, qtd: q, obs };
+  if(t === 'producao'){
+    const p = prodById(id);
+    const faltas = p.rec.map(r => ({ i: insById(r.ins), need: r.q*q })).filter(x => x.i && x.need > x.i.est + 1e-9);
+    if(faltas.length && !confirm('Faltam insumos:\n' + faltas.map(f => `• ${f.i.nome}: faltam ${num(f.need - f.i.est,3)} ${f.i.un}`).join('\n') + '\n\nRegistrar mesmo assim? (o estoque desses insumos ficará negativo)')) return;
+    p.rec.forEach(r => { const i = insById(r.ins); if(i) i.est = +(i.est - r.q*q).toFixed(4); });
+    p.est = +(p.est + q).toFixed(4);
+    Object.assign(reg, { itemId: id, itemNome: p.nome, valor: custoProduto(p).total*q });
+    msg(el, `Produção registrada: +${num(q)} ${p.nome}. Insumos baixados.`, true);
+  } else if(t === 'venda'){
+    const p = prodById(id);
+    if(q > p.est && !confirm(`O estoque de ${p.nome} é ${num(p.est)} un. Registrar a venda de ${num(q)} mesmo assim?`)) return;
+    p.est = +(p.est - q).toFixed(4);
+    Object.assign(reg, { itemId: id, itemNome: p.nome, valor: v || p.preco*q });
+    msg(el, `Venda registrada: −${num(q)} ${p.nome} (${brl(reg.valor)}).`, true);
+  } else if(t === 'compra'){
+    const i = insById(id);
+    if(v > 0){ const base = Math.max(i.est,0); i.custo = +((i.custo*base + v)/(base+q)).toFixed(4); }
+    i.est = +(i.est + q).toFixed(4);
+    Object.assign(reg, { itemId: id, itemNome: i.nome, valor: v });
+    msg(el, `Compra registrada: +${num(q,3)} ${i.un} de ${i.nome}. Custo médio: ${brl(i.custo)}/${i.un}.`, true);
+  } else if(t === 'ajuste_prod'){
+    const p = prodById(id); p.est = +(p.est + q).toFixed(4);
+    Object.assign(reg, { itemId: id, itemNome: p.nome, valor: custoProduto(p).total*q });
+    msg(el, `Ajuste registrado em ${p.nome}: ${q>0?'+':''}${num(q)} un.`, true);
+  } else {
+    const i = insById(id); i.est = +(i.est + q).toFixed(4);
+    Object.assign(reg, { itemId: id, itemNome: i.nome, valor: i.custo*q });
+    msg(el, `Ajuste registrado em ${i.nome}: ${q>0?'+':''}${num(q,3)} ${i.un}.`, true);
+  }
+  db.movs.push(reg); salvar();
+  $('#mvQtd').value = ''; $('#mvValor').value = ''; $('#mvObs').value = '';
+  renderPainel(); renderProdutos(); renderInsumos(); renderHist(); renderCalc(); preview();
+});
+
+/* ============ HISTÓRICO ============ */
+function renderHist(){
+  const f = $('#hFiltro').value;
+  const l = db.movs.filter(m => !f || m.tipo === f).slice().reverse();
+  $('#tbHist').innerHTML = l.length ? l.map(m => `<tr><td>${fmtData(m.data)}</td><td>${tipoNome(m.tipo)}</td><td>${esc(m.itemNome)}</td><td class="num ${m.qtd<0?'neg':''}">${num(m.qtd,3)}</td><td class="num">${brl(m.valor)}</td><td>${esc(m.obs)}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">Nenhuma movimentação.</td></tr>';
+}
+$('#hFiltro').addEventListener('change', renderHist);
+$('#hCsv').addEventListener('click', () => {
+  const cab = ['data','tipo','item','quantidade','valor','observacao'];
+  const linhas = db.movs.map(m => [fmtData(m.data), tipoNome(m.tipo), m.itemNome, String(m.qtd).replace('.',','), (m.valor||0).toFixed(2).replace('.',','), m.obs||''].map(x => '"'+String(x).replace(/"/g,'""')+'"').join(';'));
+  baixar('movimentacoes-rainha-do-alho.csv', '﻿' + [cab.join(';'), ...linhas].join('\n'), 'text/csv');
+});
+function baixar(nome, conteudo, tipo){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([conteudo],{type:tipo})); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 500);
+}
+
+/* ============ CALCULADORA ============ */
+let calcInit = false;
+function calcCfg(){ return { imp: n($('#cImp').value), com: n($('#cCom').value), desp: n($('#cDesp').value), marg: n($('#cMarg').value) }; }
+function renderCalc(){
+  const sel = $('#cProd'), prev = sel.value;
+  sel.innerHTML = [...db.produtos].sort(byName).map(p => `<option value="${p.id}">${esc(p.nome)}</option>`).join('');
+  if(prodById(prev)) sel.value = prev;
+  if(!calcInit){ $('#cImp').value = db.cfg.imp; $('#cCom').value = db.cfg.com; $('#cDesp').value = db.cfg.desp; $('#cMarg').value = db.cfg.marg; calcInit = true; }
+  if(!$('#cPrecoAtual').dataset.touched){ const p = prodById(sel.value); $('#cPrecoAtual').value = p ? p.preco : ''; }
+  calcular();
+}
+function calcular(){
+  const p = prodById($('#cProd').value); if(!p){ $('#cBreak').innerHTML=''; $('#cRes').innerHTML=''; return; }
+  const c = calcCfg(), frete = n($('#cFrete').value), precoAtual = n($('#cPrecoAtual').value);
+  const cp = custoProduto(p), custo = cp.total + frete;
+  const lin = p.rec.map(r => { const i = insById(r.ins); return i ? `<tr><td>${esc(i.nome)}</td><td class="num hint">${num(r.q,3)} ${esc(i.un)} × ${brl(i.custo)}</td><td class="num">${brl(i.custo*r.q)}</td></tr>` : ''; }).join('');
+  $('#cBreak').innerHTML = lin + `<tr><td>Mão de obra</td><td></td><td class="num">${brl(cp.mo)}</td></tr>` + (frete?`<tr><td>Frete / extra</td><td></td><td class="num">${brl(frete)}</td></tr>`:'') + `<tr><td><b>Custo total</b></td><td></td><td class="num"><b>${brl(custo)}</b></td></tr>`;
+  const sug = precoSugerido(custo, c);
+  const soma = c.imp + c.com + c.desp + c.marg;
+  const pctVar = (c.imp + c.com + c.desp)/100;
+  const mAtual = precoAtual ? (precoAtual - custo - precoAtual*pctVar)/precoAtual : NaN;
+  const lucroAtual = precoAtual ? precoAtual - custo - precoAtual*pctVar : NaN;
+  const markup = isFinite(sug) ? sug/custo : NaN;
+  const pe = (1 - pctVar) > 0 ? custo/(1 - pctVar) : NaN;
+  $('#cRes').innerHTML = soma >= 100
+    ? `<div class="card" style="grid-column:1/-1"><span class="neg">A soma dos percentuais (${num(soma,1)}%) precisa ser menor que 100%.</span></div>`
+    : [
+      ['Custo por unidade', brl(custo), ''],
+      ['Preço sugerido', brl(sug), 'color:var(--gold)'],
+      ['Markup sobre custo', isFinite(markup) ? num(markup,2)+'×' : '—', ''],
+      ['Preço mínimo (lucro zero)', brl(pe), ''],
+      ['Margem com preço atual', pct(mAtual), isFinite(mAtual) ? (mAtual<0?'color:var(--bad)':mAtual < c.marg/100 - 0.005 ? 'color:var(--warn)':'color:var(--ok)') : ''],
+      ['Lucro por unidade (preço atual)', brl(lucroAtual), isFinite(lucroAtual)&&lucroAtual<0?'color:var(--bad)':''],
+    ].map(([l,v,s]) => `<div class="card"><div class="hint">${l}</div><div class="big" style="${s}">${v}</div></div>`).join('');
+  if(soma < 100 && isFinite(sug)){
+    const partes = [['Custo', custo/sug, '#8a7a5c'],['Impostos', c.imp/100, '#d9468f'],['Comissão/taxas', c.com/100, '#9a6fd1'],['Despesas fixas', c.desp/100, '#4f8fbf'],['Lucro', c.marg/100, '#7fbf8a']];
+    $('#cBar').innerHTML = partes.map(([,v,cor]) => `<span style="width:${Math.max(v*100,0)}%;background:${cor}"></span>`).join('');
+    $('#cLegend').innerHTML = partes.map(([l,v,cor]) => `<span><i style="background:${cor}"></i>${l} ${pct(v)} · ${brl(v*sug)}</span>`).join('');
+    $('#cAplicar').disabled = false;
+  } else { $('#cBar').innerHTML=''; $('#cLegend').innerHTML=''; $('#cAplicar').disabled = true; }
+  renderSim(c, frete);
+}
+function renderSim(c, frete){
+  $('#tbSim').innerHTML = [...db.produtos].sort(byName).map(p => {
+    const custo = custoProduto(p).total + (p.id === $('#cProd').value ? frete : 0);
+    const sug = precoSugerido(custo, c), pv = (c.imp+c.com+c.desp)/100;
+    const m = p.preco ? (p.preco - custo - p.preco*pv)/p.preco : NaN, dif = sug - p.preco;
+    return `<tr><td>${esc(p.nome)}</td><td class="num">${brl(custo)}</td><td class="num">${brl(p.preco)}</td><td class="num ${margemClass(m)}">${pct(m)}</td><td class="num">${brl(sug)}</td><td class="num ${dif>0.005?'neg':'pos'}">${isFinite(dif)?(dif>0?'+':'')+brl(dif):'—'}</td></tr>`;
+  }).join('');
+}
+$('#cProd').addEventListener('change', () => { delete $('#cPrecoAtual').dataset.touched; $('#cFrete').value = 0; const p = prodById($('#cProd').value); $('#cPrecoAtual').value = p ? p.preco : ''; calcular(); });
+['#cImp','#cCom','#cDesp','#cMarg','#cFrete'].forEach(s => $(s).addEventListener('input', calcular));
+$('#cPrecoAtual').addEventListener('input', e => { e.target.dataset.touched = '1'; calcular(); });
+$('#cAplicar').addEventListener('click', () => {
+  const p = prodById($('#cProd').value); if(!p) return;
+  const custo = custoProduto(p).total + n($('#cFrete').value);
+  const sug = Math.round(precoSugerido(custo, calcCfg())*100)/100; if(!isFinite(sug)) return;
+  if(!confirm(`Mudar o preço de "${p.nome}" de ${brl(p.preco)} para ${brl(sug)}?`)) return;
+  p.preco = sug; salvar(); delete $('#cPrecoAtual').dataset.touched; $('#cPrecoAtual').value = sug;
+  $('#cAplicarMsg').textContent = `Preço atualizado para ${brl(sug)}.`; setTimeout(()=>$('#cAplicarMsg').textContent='', 5000);
+  renderPainel(); renderProdutos(); calcular();
+});
+
+/* ============ MODAL PRODUTO ============ */
+let editP = null;
+function abrirProd(id){
+  editP = id ? JSON.parse(JSON.stringify(prodById(id))) : { id: null, nome:'', est:0, min:0, preco:0, mo:0, rec:[] };
+  $('#dlgProdTit').textContent = id ? 'Editar produto' : 'Novo produto';
+  $('#fpNome').value = editP.nome; $('#fpEst').value = editP.est; $('#fpMin').value = editP.min; $('#fpPreco').value = editP.preco; $('#fpMO').value = editP.mo;
+  $('#fpDel').style.visibility = id ? 'visible' : 'hidden';
+  desenharRec(); $('#dlgProd').showModal();
+}
+function desenharRec(){
+  const ops = [...db.insumos].sort(byName);
+  $('#fpRec').innerHTML = editP.rec.length ? editP.rec.map((r,k) => `<div class="rec-row">
+    <select data-rk="${k}" data-f="ins">${ops.map(i => `<option value="${i.id}" ${i.id===r.ins?'selected':''}>${esc(i.nome)}</option>`).join('')}</select>
+    <input data-rk="${k}" data-f="q" type="number" step="any" min="0" value="${r.q}">
+    <span class="hint">${esc(insById(r.ins)?.un||'')}</span>
+    <button class="x" data-rdel="${k}" title="Remover">✕</button></div>`).join('') : '<p class="empty">Nenhum insumo na receita.</p>';
+  resumoProd();
+}
+function lerFormProd(){
+  editP.nome = $('#fpNome').value.trim(); editP.est = n($('#fpEst').value); editP.min = n($('#fpMin').value); editP.preco = n($('#fpPreco').value); editP.mo = n($('#fpMO').value);
+}
+function resumoProd(){
+  lerFormProd();
+  const c = custoProduto(editP), m = margemLiquida(editP), sug = precoSugerido(c.total, db.cfg);
+  $('#fpResumo').innerHTML = `<div class="row between"><span>Materiais ${brl(c.mat)} + mão de obra ${brl(c.mo)} = <b>custo ${brl(c.total)}</b></span><span>Margem líquida: <b class="${margemClass(m)}">${pct(m)}</b> · Sugerido: <b style="color:var(--gold)">${brl(sug)}</b></span></div>`;
+}
+$('#fpRec').addEventListener('input', e => { const k = e.target.dataset.rk; if(k===undefined) return; const f = e.target.dataset.f; editP.rec[k][f] = f==='q' ? n(e.target.value) : e.target.value; if(f==='ins') desenharRec(); else resumoProd(); });
+$('#fpRec').addEventListener('change', e => { if(e.target.dataset.f==='ins'){ editP.rec[e.target.dataset.rk].ins = e.target.value; desenharRec(); } });
+$('#fpRec').addEventListener('click', e => { const k = e.target.dataset.rdel; if(k!==undefined){ editP.rec.splice(+k,1); desenharRec(); } });
+['#fpEst','#fpMin','#fpPreco','#fpMO'].forEach(s => $(s).addEventListener('input', resumoProd));
+$('#fpAddRec').addEventListener('click', () => { if(!db.insumos.length) return alert('Cadastre insumos primeiro.'); editP.rec.push({ ins: [...db.insumos].sort(byName)[0].id, q: 1 }); desenharRec(); });
+$('#fpSalvar').addEventListener('click', () => {
+  lerFormProd(); if(!editP.nome) return alert('Dê um nome ao produto.');
+  editP.rec = editP.rec.filter(r => r.q > 0);
+  if(editP.id){ Object.assign(prodById(editP.id), editP); } else { editP.id = uid(); db.produtos.push(editP); }
+  salvar(); $('#dlgProd').close(); render();
+});
+$('#fpDel').addEventListener('click', () => { if(!confirm('Excluir este produto? O histórico de movimentações é mantido.')) return; db.produtos = db.produtos.filter(p => p.id !== editP.id); salvar(); $('#dlgProd').close(); render(); });
+
+/* ============ MODAL INSUMO ============ */
+let editI = null;
+function abrirIns(id){
+  editI = id ? { ...insById(id) } : { id:null, nome:'', un:'kg', custo:0, est:0, min:0 };
+  $('#dlgInsTit').textContent = id ? 'Editar insumo' : 'Novo insumo';
+  $('#fiNome').value = editI.nome; $('#fiUn').value = editI.un; $('#fiCusto').value = editI.custo; $('#fiEst').value = editI.est; $('#fiMin').value = editI.min;
+  const usos = id ? db.produtos.filter(p => p.rec.some(r => r.ins === id)).map(p => p.nome) : [];
+  $('#fiUso').textContent = usos.length ? `Usado em: ${usos.join(', ')}.` : '';
+  $('#fiDel').style.visibility = id ? 'visible' : 'hidden';
+  $('#dlgIns').showModal();
+}
+$('#fiSalvar').addEventListener('click', () => {
+  const d = { nome: $('#fiNome').value.trim(), un: $('#fiUn').value, custo: n($('#fiCusto').value), est: n($('#fiEst').value), min: n($('#fiMin').value) };
+  if(!d.nome) return alert('Dê um nome ao insumo.');
+  if(editI.id) Object.assign(insById(editI.id), d); else db.insumos.push({ id: uid(), ...d });
+  salvar(); $('#dlgIns').close(); render();
+});
+$('#fiDel').addEventListener('click', () => {
+  const usos = db.produtos.filter(p => p.rec.some(r => r.ins === editI.id));
+  if(usos.length) return alert('Este insumo está na receita de: ' + usos.map(p=>p.nome).join(', ') + '.\nRemova-o dessas receitas antes de excluir.');
+  if(!confirm('Excluir este insumo?')) return;
+  db.insumos = db.insumos.filter(i => i.id !== editI.id); salvar(); $('#dlgIns').close(); render();
+});
+
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+document.addEventListener('click', e => {
+  const t = e.target;
+  if(t.dataset.editp) abrirProd(t.dataset.editp);
+  if(t.dataset.editi) abrirIns(t.dataset.editi);
+  if(t.dataset.calcp){ abrirAba('calculadora'); $('#cProd').value = t.dataset.calcp; $('#cProd').dispatchEvent(new Event('change')); }
+});
+$('#novoProd').addEventListener('click', () => abrirProd(null));
+$('#novoIns').addEventListener('click', () => abrirIns(null));
+$('#buscaProd').addEventListener('input', renderProdutos);
+$('#buscaIns').addEventListener('input', renderInsumos);
+
+/* ============ CONFIG ============ */
+function renderCfg(){ $('#pImp').value = db.cfg.imp; $('#pCom').value = db.cfg.com; $('#pDesp').value = db.cfg.desp; $('#pMarg').value = db.cfg.marg; }
+$('#pSalvar').addEventListener('click', () => {
+  db.cfg = { imp: n($('#pImp').value), com: n($('#pCom').value), desp: n($('#pDesp').value), marg: n($('#pMarg').value) };
+  salvar(); calcInit = false; $('#pMsg').textContent = 'Salvo.'; setTimeout(()=>$('#pMsg').textContent='',3000); render();
+});
+$('#bExport').addEventListener('click', () => baixar(`backup-estoque-rainha-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(db,null,2), 'application/json'));
+$('#bImport').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try { const d = JSON.parse(await f.text()); if(!Array.isArray(d.insumos) || !Array.isArray(d.produtos)) throw 0;
+    if(!confirm('Substituir todos os dados atuais pelo backup?')) return;
+    db = d; if(!db.movs) db.movs=[]; if(!db.cfg) db.cfg={imp:6,com:3,desp:10,marg:20}; salvar(); calcInit=false; render(); msg($('#bMsg'),'Backup importado.',true);
+  } catch(_){ msg($('#bMsg'),'Arquivo inválido.',false); }
+  e.target.value = '';
+});
+$('#bReset').addEventListener('click', () => { if(!confirm('Apagar tudo e voltar aos dados de exemplo?')) return; db = dadosExemplo(); salvar(); calcInit=false; render(); msg($('#bMsg'),'Dados de exemplo restaurados.',true); });
+
+/* ============ INÍCIO ============ */
+carregar(); render();
+</script>
+</body>
+</html>
